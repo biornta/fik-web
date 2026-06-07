@@ -577,10 +577,6 @@
     <!-- JAVASCRIPT LOGIC (Firebase & Core System)  -->
     <!-- ========================================== -->
     <script type="module">
-        // KONFIGURASI URL GOOGLE APPS SCRIPT WEB APP
-        // Ganti string "URL_GAS_ANDA_DISINI" di bawah ini dengan URL Web App GAS hasil deploy
-        const GAS_WEB_APP_URL = "URL_GAS_ANDA_DISINI";
-
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -721,6 +717,21 @@
 
 
         // --- Authentication & Firestore Setup ---
+        let initialLoadDone = false;
+
+        const hideLoaderSafe = () => {
+            if (!initialLoadDone) {
+                initialLoadDone = true;
+                const loader = document.getElementById('app-loader');
+                if (loader) loader.classList.add('hidden');
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const viewFormId = urlParams.get('viewForm');
+                if (viewFormId) window.openFormFiller(viewFormId);
+                else window.openWindow('win-explorer'); // Default View
+            }
+        };
+
         const initSystem = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -731,7 +742,13 @@
             } catch (error) {
                 console.error("Auth error:", error);
                 window.showToast("Gagal terhubung ke Cloud", "error");
+                hideLoaderSafe(); // Failsafe if auth throws error
             }
+            
+            // Failsafe timeout to prevent infinite loader
+            setTimeout(() => {
+                hideLoaderSafe();
+            }, 6000);
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -739,30 +756,23 @@
             if (user) setupFirestoreListeners(user);
         });
 
-        let initialLoadDone = false;
-
         function setupFirestoreListeners(user) {
             if (!user) return;
             const formsRef = collection(db, 'artifacts', appId, 'public', 'data', 'forms');
             onSnapshot(formsRef, (snapshot) => {
                 window.formsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (!initialLoadDone) {
-                    initialLoadDone = true;
-                    document.getElementById('app-loader').classList.add('hidden');
-                    
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const viewFormId = urlParams.get('viewForm');
-                    if (viewFormId) window.openFormFiller(viewFormId);
-                    else window.openWindow('win-explorer'); // Default View
-                }
+                hideLoaderSafe();
                 window.refreshUI();
-            }, (error) => console.error("Firestore error:", error));
+            }, (error) => {
+                console.error("Firestore error (forms):", error);
+                hideLoaderSafe(); // Failsafe if permission denied or error
+            });
 
             const subsRef = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
             onSnapshot(subsRef, (snapshot) => {
                 window.submissionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 window.refreshUI();
-            }, (error) => console.error("Firestore error:", error));
+            }, (error) => console.error("Firestore error (subs):", error));
         }
 
         window.refreshUI = () => {
@@ -1275,27 +1285,6 @@
                 });
 
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', submission.id), submission);
-                
-                // --- INTEGRASI GOOGLE APP SCRIPT (GAS) ---
-                if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.startsWith("http")) {
-                    const payloadToGas = {
-                        formTitle: f.title,
-                        timestamp: submission.timestamp,
-                        answers: {}
-                    };
-                    f.questions.forEach(q => {
-                        let answerVal = submission.answers[q.id];
-                        if (q.type === 'file' && answerVal) answerVal = "[Gambar Tersimpan di Database Firebase]";
-                        payloadToGas.answers[q.title] = answerVal || "";
-                    });
-
-                    fetch(GAS_WEB_APP_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(payloadToGas)
-                    }).catch(err => console.error("GAS Sync Error:", err));
-                }
-                // ----------------------------------------
 
                 document.getElementById('form-filler').classList.add('hidden');
                 document.getElementById('public-success').classList.remove('hidden');
