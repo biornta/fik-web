@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 98 - Formulir Digital Cloud</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Windows 98 Font & Desktop Palette */
+        @font-face {
+            font-family: 'MS Sans Serif';
+            src: local('MS Sans Serif'), local('Tahoma'), local('Arial');
+        }
+        
+        body {
+            background-color: #008080 !important; /* Classic Windows Teal */
+            font-family: 'MS Sans Serif', 'Tahoma', Arial, sans-serif;
+            font-size: 11px;
+            color: #000;
+            overflow: hidden;
+            user-select: text; /* Diubah dari none agar semua teks konten dapat diblok dan disalin */
+        }
+
+        /* Windows 98 3D Borders styling */
+        .win98-window {
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #555 #555 #fff;
+            box-shadow: 1px 1px 0 0 #000;
+            padding: 2px;
+        }
+
+        .win98-window-inset {
+            border: 2px solid;
+            border-color: #555 #fff #fff #555;
+            background: #fff;
+        }
+
+        .win98-titlebar {
+            background: linear-gradient(90deg, #000080, #1084d0);
+            color: #fff;
+            font-weight: bold;
+            padding: 3px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            touch-action: none; /* Prevent scroll while dragging on mobile */
+            user-select: none; /* Mencegah seleksi teks saat menyeret jendela */
+        }
+
+        .win98-btn {
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #555 #555 #fff;
+            box-shadow: 1px 1px 0 0 #000;
+            padding: 3px 10px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            user-select: none; /* Menjaga tombol agar tidak terblok saat diklik */
+        }
+
+        .win98-btn:active, .win98-btn.active {
+            border-color: #555 #fff #fff #555;
+            box-shadow: none;
+            padding: 4px 9px 2px 11px;
+        }
+
+        .win98-btn:disabled {
+            color: #808080 !important;
+            text-shadow: 1px 1px 0 #fff;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .win98-btn-close {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #555 #555 #fff;
+            font-size: 10px;
+            color: #000;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .win98-btn-close:active {
+            border-color: #555 #fff #fff #555;
+            padding-top: 1px;
+            padding-left: 1px;
+        }
+
+        /* Input styling */
+        .win98-input {
+            background: #fff;
+            border: 2px solid;
+            border-color: #555 #fff #fff #555;
+            outline: none;
+            padding: 3px 5px;
+            font-size: 12px;
+            font-family: inherit;
+        }
+
+        .win98-input:focus {
+            box-shadow: 0 0 0 1px #000;
+        }
+
+        /* Classic Retro Scrollbar */
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #dfdfdf;
+            background-image: linear-gradient(45deg, #c0c0c0 25%, transparent 25%), 
+                              linear-gradient(-45deg, #c0c0c0 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #c0c0c0 75%), 
+                              linear-gradient(-45deg, transparent 75%, #c0c0c0 75%);
+            background-size: 4px 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #555 #555 #fff;
+        }
+        ::-webkit-scrollbar-button {
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #555 #555 #fff;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Taskbar */
+        .win98-taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            box-shadow: 0 -1px 0 0 #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2px;
+            z-index: 100;
+            user-select: none;
+        }
+
+        .win98-tray {
+            border: 2px solid;
+            border-color: #555 #fff #fff #555;
+            padding: 2px 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        /* Folder Tree Item Styling */
+        .tree-node {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 4px;
+            cursor: pointer;
+        }
+        .tree-node:hover {
+            background-color: #000080;
+            color: #fff;
+        }
+
+        .explorer-file {
+            text-align: center;
+            cursor: pointer;
+            padding: 6px;
+            border: 1px dotted transparent;
+        }
+        .explorer-file:hover {
+            background-color: rgba(0, 0, 128, 0.1);
+            border: 1px dotted #000080;
+        }
+        
+        /* Mobile Fixes for Overflowing Content */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="min-h-screen relative p-2 md:p-4 pb-16">
+
+    <!-- Fullscreen Loader (Win98 Style) -->
+    <div id="app-loader" class="fixed inset-0 bg-[#008080] z-[100] flex items-center justify-center p-4">
+        <div class="win98-window p-6 flex flex-col items-center gap-4 max-w-sm w-full shadow-2xl">
+            <div class="win98-titlebar w-full mb-2">
+                <span><i class="fas fa-network-wired text-yellow-300"></i> Windows Networking</span>
+            </div>
+            <i class="fas fa-hourglass-half text-4xl text-[#000080] fa-spin"></i>
+            <p class="font-bold text-sm text-center">Menghubungkan ke Cloud Database...</p>
+            <p class="text-xs text-gray-600 text-center">Memuat konfigurasi Firestore, harap tunggu.</p>
+        </div>
+    </div>
+
+    <!-- Desktop Shortcuts -->
+    <div class="absolute top-4 left-4 flex flex-col gap-6 z-0">
+        <div class="flex flex-col items-center gap-1 cursor-pointer w-16" onclick="window.openWindow('win-explorer')">
+            <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 6h8l3 3h17v17H2V6z" fill="#FFE57F" stroke="#E6A100" stroke-width="1.5"/>
+                <path d="M2 9h28v14H2V9z" fill="#FFD54F"/>
+            </svg>
+            <span class="text-white text-center text-[10px] font-semibold drop-shadow-md">Formulir Publik</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 cursor-pointer w-16" onclick="window.showToast('Fitur Recycle Bin kosong!', 'success')">
+            <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="8" width="20" height="20" rx="2" fill="#B0BEC5" stroke="#37474F" stroke-width="1.5"/>
+                <path d="M4 6h24" stroke="#37474F" stroke-width="2"/>
+                <path d="M11 12v10M16 12v10M21 12v10" stroke="#546E7A" stroke-width="1.5"/>
+            </svg>
+            <span class="text-white text-center text-[10px] font-semibold drop-shadow-md">Recycle Bin</span>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DIALOGS & TOASTS (Win98 Style)             -->
+    <!-- ========================================== -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[90] space-y-2 pointer-events-none p-2"></div>
+
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-40 z-[95] flex items-center justify-center hidden p-4">
+        <div class="win98-window max-w-sm w-full">
+            <div class="win98-titlebar">
+                <span class="flex items-center gap-1.5"><i class="fas fa-exclamation-triangle text-yellow-400"></i> <span id="modal-title">Konfirmasi</span></span>
+                <button onclick="window.closeModal()" class="win98-btn-close">×</button>
+            </div>
+            <div class="p-4 space-y-4 bg-[#c0c0c0]">
+                <p id="modal-message" class="text-xs font-bold">Pesan konfirmasi.</p>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button id="modal-btn-confirm" class="win98-btn font-bold">Ya</button>
+                    <button onclick="window.closeModal()" class="win98-btn">Tidak</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialog Login Admin -->
+    <div id="win-login" class="win98-window fixed md:top-1/3 md:left-1/2 md:-translate-x-1/2 top-10 left-2 right-2 md:w-full md:max-w-xs z-[80] hidden shadow-2xl">
+        <div class="win98-titlebar cursor-move" onmousedown="window.dragWindow(event, 'win-login')" ontouchstart="window.dragWindow(event, 'win-login')">
+            <span class="flex items-center gap-1.5"><i class="fas fa-key text-yellow-300"></i> Administrator Login</span>
+            <button onclick="window.closeWindow('win-login')" class="win98-btn-close">×</button>
+        </div>
+        <div class="p-4 space-y-4 bg-[#c0c0c0]">
+            <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+                <i class="fas fa-user-lock text-4xl text-[#000080]"></i>
+                <div class="space-y-2 text-xs flex-grow w-full">
+                    <p>Masukkan kata sandi Administrator untuk mengelola sistem formulir cloud:</p>
+                    <div class="flex flex-col gap-1 mt-2">
+                        <label class="font-bold">Password:</label>
+                        <!-- Mengosongkan default value 'admin' dan menambahkan event listener Enter Key -->
+                        <input type="password" id="login-password" class="win98-input w-full" placeholder="Ketik sandi..." value="" onkeydown="if(event.key === 'Enter') window.submitAdminLogin()">
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t border-gray-400 pt-3">
+                <button onclick="window.submitAdminLogin()" class="win98-btn font-bold">OK</button>
+                <button onclick="window.closeWindow('win-login')" class="win98-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 1. WINDOWS EXPLORER (Halaman Utama Publik) -->
+    <!-- ========================================== -->
+    <!-- ADDED: resize overflow-hidden min-w-[300px] min-h-[300px] -->
+    <div id="win-explorer" class="win98-window absolute md:top-10 md:left-10 top-2 left-2 w-[95vw] md:w-full md:max-w-3xl h-[80vh] md:h-[480px] min-w-[300px] min-h-[300px] flex flex-col z-10 shadow-lg resize overflow-hidden">
+        <div class="win98-titlebar cursor-move" onmousedown="window.dragWindow(event, 'win-explorer')" ontouchstart="window.dragWindow(event, 'win-explorer')">
+            <span class="win98-title-text flex items-center gap-1.5 truncate"><i class="fas fa-folder-open text-yellow-300"></i> Exploring - Formulir Publik</span>
+            <div class="flex gap-1 shrink-0">
+                <button onclick="window.toggleWindowMin('win-explorer')" class="win98-btn-close">-</button>
+                <button onclick="window.showToast('Maksimalisasi Layar / Resize di sudut kanan bawah!', 'success')" class="win98-btn-close">□</button>
+                <button onclick="window.closeWindow('win-explorer')" class="win98-btn-close">×</button>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1 sm:gap-3 px-2 py-1 bg-[#c0c0c0] border-b border-white text-xs">
+            <span class="cursor-pointer hover:bg-[#000080] hover:text-white px-1.5 rounded" onclick="window.renderExplorer()">File</span>
+            <span class="cursor-pointer hover:bg-[#000080] hover:text-white px-1.5 rounded">Edit</span>
+            <span class="cursor-pointer hover:bg-[#000080] hover:text-white px-1.5 rounded">View</span>
+            <span class="cursor-pointer hover:bg-[#000080] hover:text-white px-1.5 rounded">Help</span>
+        </div>
+
+        <div class="flex items-center gap-2 p-1.5 bg-[#c0c0c0] border-b border-gray-400 text-xs">
+            <span class="text-gray-500 hidden sm:inline">Address:</span>
+            <div class="win98-window-inset flex-grow px-2 py-0.5 bg-white text-gray-700 select-all truncate text-[10px] sm:text-xs">
+                C:\Cloud\Public\Forms
+            </div>
+        </div>
+
+        <div class="flex flex-grow overflow-hidden bg-[#c0c0c0] p-1 gap-1">
+            <div class="hidden sm:flex w-1/3 bg-white win98-window-inset p-2 overflow-y-auto flex-col text-xs space-y-1.5">
+                <div class="tree-node font-bold"><i class="fas fa-desktop text-gray-600"></i> Desktop</div>
+                <div class="pl-4">
+                    <div class="tree-node text-gray-700 font-semibold"><i class="fas fa-cloud text-blue-500"></i> Cloud Network</div>
+                    <div class="pl-4">
+                        <div class="tree-node text-blue-900 font-bold bg-gray-100 p-0.5 border border-dotted border-gray-400"><i class="fas fa-folder-open text-yellow-300"></i> Formulir Publik</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full sm:w-2/3 bg-white win98-window-inset p-3 overflow-y-auto">
+                <div class="flex justify-between items-center pb-2 border-b border-gray-200 mb-3">
+                    <span class="font-bold text-xs text-gray-700 truncate">Pilih formulir untuk diisi:</span>
+                    <span id="explorer-counter" class="text-[10px] bg-gray-100 px-2 py-0.5 border border-gray-300 rounded shrink-0">0 File</span>
+                </div>
+
+                <div id="explorer-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <!-- File Icons injected dynamically -->
+                </div>
+
+                <div id="explorer-empty" class="hidden text-center py-12 text-gray-400 text-xs space-y-2">
+                    <i class="far fa-folder-open text-3xl"></i>
+                    <p>Folder ini kosong.<br>Admin belum membuat formulir apapun.</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#c0c0c0] border-t border-white px-2 py-1 text-[10px] text-gray-600 flex justify-between shrink-0">
+            <span>Status: Online</span>
+            <span class="hidden sm:inline">Firebase Connected</span>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 2. ADMIN DASHBOARD (Control Panel)         -->
+    <!-- ========================================== -->
+    <div id="win-admin-dash" class="win98-window absolute md:top-16 md:left-16 top-4 left-2 w-[95vw] md:w-full md:max-w-2xl h-[80vh] md:h-[400px] min-w-[300px] min-h-[300px] flex flex-col z-20 shadow-xl hidden resize overflow-hidden">
+        <div class="win98-titlebar cursor-move" onmousedown="window.dragWindow(event, 'win-admin-dash')" ontouchstart="window.dragWindow(event, 'win-admin-dash')">
+            <span class="flex items-center gap-1.5 truncate"><i class="fas fa-cogs text-gray-300"></i> Control Panel - Form Manager</span>
+            <div class="flex gap-1 shrink-0">
+                <button onclick="window.toggleWindowMin('win-admin-dash')" class="win98-btn-close">-</button>
+                <button onclick="window.closeWindow('win-admin-dash')" class="win98-btn-close">×</button>
+            </div>
+        </div>
+        
+        <div class="flex gap-2 p-2 bg-[#c0c0c0] border-b border-gray-400 flex-wrap">
+            <button onclick="window.createNewForm()" class="win98-btn font-bold"><i class="fas fa-plus text-blue-800"></i> Buat Form Baru</button>
+            <button onclick="window.renderAdminDash()" class="win98-btn"><i class="fas fa-sync-alt text-green-700"></i> Refresh</button>
+        </div>
+
+        <div class="flex-grow bg-white win98-window-inset m-2 overflow-y-auto overflow-x-auto">
+            <table class="min-w-full text-xs text-left">
+                <thead class="bg-[#c0c0c0] border-b-2 border-white sticky top-0">
+                    <tr>
+                        <th class="px-3 py-2 font-bold border-r border-white">Nama Formulir</th>
+                        <th class="px-3 py-2 font-bold border-r border-white w-20">Respon</th>
+                        <th class="px-3 py-2 font-bold w-24">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-dash-table" class="divide-y divide-gray-200">
+                    <!-- Admin forms list -->
+                </tbody>
+            </table>
+            <div id="admin-dash-empty" class="hidden p-8 text-center text-gray-500 text-xs">
+                Klik "Buat Form Baru" untuk memulai.
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 3. FORM BUILDER & EDITOR (ADMIN ONLY)       -->
+    <!-- ========================================== -->
+    <div id="win-builder" class="win98-window absolute md:top-20 md:left-24 top-4 left-2 w-[95vw] md:w-full md:max-w-2xl h-[85vh] md:h-[500px] min-w-[300px] min-h-[300px] flex flex-col z-30 shadow-xl hidden resize overflow-hidden">
+        <div class="win98-titlebar cursor-move" onmousedown="window.dragWindow(event, 'win-builder')" ontouchstart="window.dragWindow(event, 'win-builder')">
+            <span class="flex items-center gap-1.5 truncate"><i class="fas fa-tools text-gray-300"></i> Form Desainer</span>
+            <div class="flex gap-1 shrink-0">
+                <button onclick="window.toggleWindowMin('win-builder')" class="win98-btn-close">-</button>
+                <button onclick="window.closeWindow('win-builder')" class="win98-btn-close">×</button>
+            </div>
+        </div>
+
+        <!-- Sub Tabs Nav -->
+        <div class="flex flex-wrap bg-[#c0c0c0] p-1 border-b border-gray-400 gap-1 text-xs">
+            <button onclick="window.switchEditorTab('build')" id="tab-build" class="win98-btn font-bold active">Desain Form</button>
+            <button onclick="window.switchEditorTab('responses')" id="tab-responses" class="win98-btn">Respon (<span id="badge-responses">0</span>)</button>
+            <div class="flex-grow"></div>
+            <button onclick="window.copyPublicLink()" class="win98-btn font-bold text-[#000080]"><i class="fas fa-link"></i> Link</button>
+        </div>
+
+        <!-- Scrollable Workspace -->
+        <div class="flex-grow overflow-y-auto overflow-x-hidden bg-gray-100 p-2 sm:p-4 space-y-4">
+            
+            <!-- BUILDER VIEW PANEL -->
+            <div id="view-builder" class="space-y-4">
+                <!-- Header Card -->
+                <div class="win98-window p-3 sm:p-4 bg-[#c0c0c0] space-y-2">
+                    <div class="flex flex-col gap-1">
+                        <label class="font-bold text-xs">Judul Formulir:</label>
+                        <input type="text" id="edit-form-title" onchange="window.updateFormMeta()" class="win98-input w-full text-base font-bold" value="Formulir Tanpa Judul">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="font-bold text-xs">Deskripsi:</label>
+                        <textarea id="edit-form-desc" onchange="window.updateFormMeta()" rows="2" class="win98-input w-full text-xs resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Questions List Container -->
+                <div id="questions-container" class="space-y-4">
+                    <!-- Cards injected here -->
+                </div>
+
+                <!-- Question Creator Bar -->
+                <div class="win98-window p-2 sm:p-3 bg-[#c0c0c0] flex flex-wrap items-center gap-2">
+                    <span class="font-bold text-xs mr-2">Sisipkan:</span>
+                    <button onclick="window.addQuestion('text')" class="win98-btn text-xs"><i class="fas fa-font text-blue-800"></i> <span class="hidden sm:inline">Teks</span></button>
+                    <button onclick="window.addQuestion('paragraph')" class="win98-btn text-xs"><i class="fas fa-align-left text-blue-800"></i> <span class="hidden sm:inline">Paragraf</span></button>
+                    <button onclick="window.addQuestion('radio')" class="win98-btn text-xs"><i class="fas fa-dot-circle text-blue-800"></i> <span class="hidden sm:inline">Pil. Ganda</span></button>
+                    <button onclick="window.addQuestion('checkbox')" class="win98-btn text-xs"><i class="fas fa-check-square text-blue-800"></i> <span class="hidden sm:inline">Checkbox</span></button>
+                    <button onclick="window.addQuestion('file')" class="win98-btn text-xs"><i class="fas fa-image text-blue-800"></i> <span class="hidden sm:inline">Foto</span></button>
+                </div>
+            </div>
+
+            <!-- RESPONSES VIEW PANEL -->
+            <div id="view-responses" class="space-y-4 hidden">
+                <div class="win98-window p-3 bg-[#c0c0c0] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
+                    <span class="font-bold">Total Respon Masuk: <span id="stat-responses-count" class="text-[#000080]">0</span></span>
+                    <div class="flex gap-2">
+                        <button onclick="window.exportToCSV()" class="win98-btn font-bold text-[#008000]"><i class="fas fa-file-excel"></i> CSV</button>
+                        <button onclick="window.confirmClearResponses()" class="win98-btn text-red-700"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                </div>
+
+                <!-- Charts (Jika ada) -->
+                <div id="charts-container" class="space-y-3"></div>
+
+                <!-- Data Table View -->
+                <div class="win98-window-inset bg-white overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-300 text-xs text-left">
+                        <thead id="table-head" class="bg-[#c0c0c0] font-bold text-gray-900 border-b border-white"></thead>
+                        <tbody id="table-body" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 4. PUBLIC FORM FILLER (INTERNET EXPLORER)  -->
+    <!-- ========================================== -->
+    <div id="win-filler" class="win98-window absolute md:top-8 md:left-8 top-2 left-2 w-[95vw] md:w-full md:max-w-xl h-[85vh] md:h-[520px] min-w-[300px] min-h-[300px] flex flex-col z-40 shadow-2xl hidden resize overflow-hidden">
+        <div class="win98-titlebar cursor-move" onmousedown="window.dragWindow(event, 'win-filler')" ontouchstart="window.dragWindow(event, 'win-filler')">
+            <span class="flex items-center gap-1.5 truncate"><i class="fas fa-globe text-blue-300"></i> Internet Explorer - Pengisian Formulir</span>
+            <div class="flex gap-1 shrink-0">
+                <button onclick="window.toggleWindowMin('win-filler')" class="win98-btn-close">-</button>
+                <button onclick="window.closeWindow('win-filler')" class="win98-btn-close">×</button>
+            </div>
+        </div>
+
+        <div class="bg-[#c0c0c0] border-b border-gray-400 text-xs flex-shrink-0">
+            <div class="flex gap-3 px-2 py-1 border-b border-white overflow-x-auto no-scrollbar">
+                <span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Favorites</span><span>Help</span>
+            </div>
+            <div class="flex items-center gap-2 p-1.5">
+                <span class="text-gray-500 font-bold hidden sm:inline">Address:</span>
+                <div id="filler-url-bar" class="win98-window-inset flex-grow px-2 py-0.5 bg-white text-[#000080] font-mono text-[10px] truncate">
+                    http://cloud-form.os/public/form?id=null
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-grow overflow-y-auto overflow-x-hidden bg-white p-4 sm:p-6">
+            <form id="form-filler" onsubmit="window.submitFormResponse(event)" class="space-y-4 max-w-md mx-auto">
+                <div class="win98-window p-4 bg-[#c0c0c0] space-y-2">
+                    <h1 id="public-title" class="text-lg sm:text-xl font-bold">Judul</h1>
+                    <p id="public-desc" class="text-xs text-gray-700 whitespace-pre-line">Deskripsi</p>
+                    <hr class="border-gray-400 my-2">
+                    <p class="text-[10px] text-red-600 font-bold">* Wajib diisi</p>
+                </div>
+
+                <!-- Fields Container -->
+                <div id="public-fields" class="space-y-4"></div>
+
+                <div class="flex justify-end pt-2">
+                    <button type="submit" id="btn-submit-public" class="win98-btn font-bold px-6 py-2 text-sm sm:text-base w-full">Kirim Tanggapan</button>
+                </div>
+            </form>
+
+            <!-- Success State -->
+            <div id="public-success" class="hidden text-center py-10 px-4 space-y-4 max-w-sm mx-auto win98-window bg-[#c0c0c0] mt-10">
+                <i class="fas fa-check-circle text-4xl text-green-700"></i>
+                <h2 class="text-lg font-bold text-gray-900">Pengiriman Sukses!</h2>
+                <p class="text-xs text-gray-800">Tanggapan administrasi Anda telah berhasil disimpan ke dalam Cloud Database.</p>
+                <div class="flex justify-center gap-2 mt-4 pt-4 border-t border-gray-400">
+                    <button onclick="window.closeWindow('win-filler')" class="win98-btn">Tutup Browser</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- WINDOWS 98 RETRO TASKBAR                   -->
+    <!-- ========================================== -->
+    <div class="win98-taskbar">
+        <div class="flex items-center gap-1 w-full overflow-x-auto no-scrollbar">
+            <button onclick="window.toggleStartMenu()" class="win98-btn font-bold win98-start-btn px-1 sm:px-2 shrink-0">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23008080'/><text x='2' y='12' fill='white' font-family='Arial' font-size='10' font-weight='bold'>W98</text></svg>" class="w-4 h-4 sm:mr-1">
+                <span class="hidden sm:inline">Start</span>
+            </button>
+            <div class="h-5 w-[1px] bg-gray-400 mx-1 shrink-0"></div>
+            
+            <!-- Quick Active Window Bar -->
+            <button id="task-explorer" onclick="window.toggleWindowMin('win-explorer')" class="win98-btn text-xs font-bold active shrink-0">
+                <i class="fas fa-folder-open text-yellow-500 sm:mr-1"></i> <span class="hidden sm:inline">Public</span>
+            </button>
+            <button id="task-admin-dash" onclick="window.toggleWindowMin('win-admin-dash')" class="win98-btn text-xs font-bold hidden shrink-0">
+                <i class="fas fa-cogs text-gray-500 sm:mr-1"></i> <span class="hidden sm:inline">C. Panel</span>
+            </button>
+            <button id="task-builder" onclick="window.toggleWindowMin('win-builder')" class="win98-btn text-xs font-bold hidden shrink-0">
+                <i class="fas fa-tools text-purple-600 sm:mr-1"></i> <span class="hidden sm:inline">Builder</span>
+            </button>
+            <button id="task-filler" onclick="window.toggleWindowMin('win-filler')" class="win98-btn text-xs font-bold hidden shrink-0">
+                <i class="fas fa-globe text-blue-500 sm:mr-1"></i> <span class="hidden sm:inline">IE 4.0</span>
+            </button>
+        </div>
+
+        <!-- Start Menu Dropup -->
+        <div id="start-menu" class="absolute bottom-8 left-1 w-48 win98-window z-[120] hidden shadow-2xl">
+            <div class="flex h-44">
+                <div class="w-8 bg-gradient-to-t from-[#000080] to-[#1084d0] text-white flex items-end p-1.5 select-none font-bold text-xs" style="writing-mode: vertical-lr; transform: rotate(180deg);">
+                    Windows 98
+                </div>
+                <div class="flex-grow flex flex-col justify-between py-1 text-xs bg-[#c0c0c0]">
+                    <div class="space-y-1">
+                        <div onclick="window.openWindow('win-explorer')" class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer">
+                            <i class="fas fa-folder-open text-yellow-500"></i> Formulir Publik
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Tray -->
+        <div class="win98-tray">
+            <button onclick="window.openWindow('win-login')" class="flex items-center gap-1 text-xs bg-transparent border-0 font-bold hover:text-[#000080]">
+                <i class="fas fa-user-lock text-yellow-600"></i> <span class="hidden sm:inline">Login Admin</span>
+            </button>
+            <div class="h-4 w-[2px] bg-gray-400 border-r border-white"></div>
+            <span id="system-clock">18:00</span>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC (Firebase & Core System)  -->
+    <!-- ========================================== -->
+    <script type="module">
+        // KONFIGURASI URL GOOGLE APPS SCRIPT WEB APP
+        // Ganti string "URL_GAS_ANDA_DISINI" di bawah ini dengan URL Web App GAS hasil deploy
+        const GAS_WEB_APP_URL = "URL_GAS_ANDA_DISINI";
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Initialization
+        let firebaseConfig = {};
+        try { firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {}; } 
+        catch(e) { console.error("Firebase config error", e); }
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // --- State Management ---
+        window.formsData = [];
+        window.submissionsData = [];
+        window.currentFormId = null; 
+        window.activeAdminTab = 'build';
+        window.isAdmin = false;
+        let activeCharts = {};
+        let currentUser = null;
+
+        // --- Window Dragging Logic (Retro + Touch Support) ---
+        let dragObj = null, diffX = 0, diffY = 0;
+        window.dragWindow = (e, windowId) => {
+            // Do not drag if clicking on a button
+            if(e.target.closest('button')) return;
+            
+            dragObj = document.getElementById(windowId);
+            let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            
+            diffX = clientX - dragObj.offsetLeft;
+            diffY = clientY - dragObj.offsetTop;
+            
+            document.addEventListener('mousemove', onDragMove);
+            document.addEventListener('mouseup', onDragEnd);
+            document.addEventListener('touchmove', onDragMove, {passive: false});
+            document.addEventListener('touchend', onDragEnd);
+        };
+        const onDragMove = (e) => {
+            if (dragObj) {
+                let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                dragObj.style.left = (clientX - diffX) + 'px';
+                dragObj.style.top = (clientY - diffY) + 'px';
+                // Prevent scrolling while dragging
+                if (e.type.includes('touch')) e.preventDefault();
+            }
+        };
+        const onDragEnd = () => {
+            document.removeEventListener('mousemove', onDragMove);
+            document.removeEventListener('mouseup', onDragEnd);
+            document.removeEventListener('touchmove', onDragMove);
+            document.removeEventListener('touchend', onDragEnd);
+            dragObj = null;
+        };
+
+        // --- Clock Logic ---
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('system-clock').textContent = 
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // --- Window Manager Core ---
+        window.openWindow = (id) => {
+            const win = document.getElementById(id);
+            if(win) {
+                win.classList.remove('hidden');
+                document.querySelectorAll('.win98-window').forEach(w => { if(w.id !== 'start-menu') w.style.zIndex = "10"; });
+                win.style.zIndex = "30";
+                
+                const btn = document.getElementById('task-' + id.split('-')[1]);
+                if(btn) btn.classList.remove('hidden');
+                
+                // Set active taskbar visual
+                document.querySelectorAll('.win98-taskbar .win98-btn').forEach(b => b.classList.remove('active'));
+                if(btn) btn.classList.add('active');
+            }
+            document.getElementById('start-menu').classList.add('hidden');
+        };
+
+        window.closeWindow = (id) => {
+            const win = document.getElementById(id);
+            if(win) win.classList.add('hidden');
+            const btn = document.getElementById('task-' + id.split('-')[1]);
+            if(btn) btn.classList.add('hidden');
+        };
+
+        window.toggleWindowMin = (id) => {
+            const win = document.getElementById(id);
+            if(win) {
+                win.classList.toggle('hidden');
+                const btn = document.getElementById('task-' + id.split('-')[1]);
+                if(btn) {
+                    if(win.classList.contains('hidden')) btn.classList.remove('active');
+                    else {
+                        document.querySelectorAll('.win98-taskbar .win98-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.querySelectorAll('.win98-window').forEach(w => { if(w.id !== 'start-menu') w.style.zIndex = "10"; });
+                        win.style.zIndex = "30";
+                    }
+                }
+            }
+        };
+
+        window.toggleStartMenu = () => document.getElementById('start-menu').classList.toggle('hidden');
+
+        // --- Utils & UI Dialogs ---
+        function generateId() { return 'id_' + Math.random().toString(36).substr(2, 9); }
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
+        }
+
+        window.showToast = (msg, type='success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "win98-window p-3 shadow-lg flex items-center gap-2 max-w-xs transition-opacity duration-300 bg-[#c0c0c0]";
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-info-circle text-[#000080]' : 'fa-exclamation-triangle text-red-600'} text-lg"></i><span class="text-xs font-bold">${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        };
+
+        window.showModal = (title, msg, onConfirm) => {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = msg;
+            const btn = document.getElementById('modal-btn-confirm');
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', () => { onConfirm(); window.closeModal(); });
+            document.getElementById('custom-modal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => document.getElementById('custom-modal').classList.add('hidden');
+
+
+        // --- Authentication & Firestore Setup ---
+        const initSystem = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+                window.showToast("Gagal terhubung ke Cloud", "error");
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) setupFirestoreListeners(user);
+        });
+
+        let initialLoadDone = false;
+
+        function setupFirestoreListeners(user) {
+            if (!user) return;
+            const formsRef = collection(db, 'artifacts', appId, 'public', 'data', 'forms');
+            onSnapshot(formsRef, (snapshot) => {
+                window.formsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (!initialLoadDone) {
+                    initialLoadDone = true;
+                    document.getElementById('app-loader').classList.add('hidden');
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const viewFormId = urlParams.get('viewForm');
+                    if (viewFormId) window.openFormFiller(viewFormId);
+                    else window.openWindow('win-explorer'); // Default View
+                }
+                window.refreshUI();
+            }, (error) => console.error("Firestore error:", error));
+
+            const subsRef = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
+            onSnapshot(subsRef, (snapshot) => {
+                window.submissionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.refreshUI();
+            }, (error) => console.error("Firestore error:", error));
+        }
+
+        window.refreshUI = () => {
+            window.renderExplorer();
+            if (window.isAdmin) window.renderAdminDash();
+            if (window.currentFormId && !document.getElementById('win-builder').classList.contains('hidden')) {
+                if (window.activeAdminTab === 'build') window.renderBuilder();
+                if (window.activeAdminTab === 'responses') window.renderResponses();
+            }
+        };
+
+        initSystem(); // Boot OS
+
+        // --- Admin Login Processing ---
+        window.submitAdminLogin = () => {
+            const passwordVal = document.getElementById('login-password').value;
+            if (passwordVal === 'fik041063') {
+                window.isAdmin = true;
+                window.closeWindow('win-login');
+                window.showToast("Login Administrator Sukses!", "success");
+                window.openWindow('win-admin-dash');
+                window.renderAdminDash();
+                document.getElementById('login-password').value = ''; // Bersihkan input setelah sukses
+            } else {
+                window.showToast("Sandi Administrator salah!", "error");
+            }
+        };
+
+
+        // ==========================================
+        // 1. EXPLORER RENDERER (Halaman Utama)
+        // ==========================================
+        window.renderExplorer = () => {
+            const grid = document.getElementById('explorer-grid');
+            const empty = document.getElementById('explorer-empty');
+            document.getElementById('explorer-counter').textContent = `${window.formsData.length} File`;
+
+            grid.innerHTML = '';
+            if (window.formsData.length === 0) empty.classList.remove('hidden');
+            else {
+                empty.classList.add('hidden');
+                window.formsData.forEach(f => {
+                    const card = document.createElement('div');
+                    card.className = "explorer-file flex flex-col items-center gap-1.5";
+                    card.onclick = () => window.openFormFiller(f.id);
+                    card.innerHTML = `
+                        <svg class="w-10 h-10" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" y="3" width="20" height="26" fill="#FFFFFF" stroke="#000000" stroke-width="1.5"/>
+                            <path d="M10 8h12M10 12h12M10 16h8" stroke="#808080" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M20 3l6 6M20 3v6h6" fill="#C0C0C0" stroke="#000000" stroke-width="1.5"/>
+                        </svg>
+                        <span class="text-xs text-center text-gray-950 truncate w-full px-1" title="${escapeHTML(f.title)}">${escapeHTML(f.title)}</span>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        };
+
+        // ==========================================
+        // 2. ADMIN CONTROL PANEL DASHBOARD
+        // ==========================================
+        window.renderAdminDash = () => {
+            if (!window.isAdmin) return;
+            const tbody = document.getElementById('admin-dash-table');
+            const empty = document.getElementById('admin-dash-empty');
+            tbody.innerHTML = '';
+
+            if (window.formsData.length === 0) empty.classList.remove('hidden');
+            else {
+                empty.classList.add('hidden');
+                window.formsData.forEach(f => {
+                    const rCount = window.submissionsData.filter(s => s.formId === f.id).length;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-[#000080] hover:text-white cursor-pointer group";
+                    tr.innerHTML = `
+                        <td class="px-3 py-1.5 border-r border-gray-300 truncate max-w-[150px]" onclick="window.openFormEditor('${f.id}')"><i class="far fa-file-alt mr-1 text-gray-500 group-hover:text-white"></i> ${escapeHTML(f.title)}</td>
+                        <td class="px-3 py-1.5 border-r border-gray-300 w-12 sm:w-20 text-center">${rCount}</td>
+                        <td class="px-3 py-1.5 w-16 sm:w-24 text-center">
+                            <button onclick="window.confirmDeleteForm('${f.id}')" class="win98-btn py-0 text-[10px] text-red-600 group-hover:text-black">Hapus</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        };
+
+        window.createNewForm = async () => {
+            if (!currentUser) return;
+            const newForm = {
+                id: generateId(),
+                ownerId: currentUser.uid,
+                title: "Formulir Baru",
+                desc: "Ketik deskripsi form disini...",
+                questions: [ { id: generateId(), type: 'text', title: 'Pertanyaan 1', required: false, options: [] } ]
+            };
+            const formRef = doc(db, 'artifacts', appId, 'public', 'data', 'forms', newForm.id);
+            await setDoc(formRef, newForm);
+            window.showToast("Formulir sukses dibuat!");
+            window.openFormEditor(newForm.id);
+        };
+
+        window.confirmDeleteForm = (id) => {
+            if (!currentUser) return;
+            window.showModal('Hapus Permanen?', 'Formulir ini beserta semua data respon akan dihapus dari Cloud.', async () => {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', id));
+                window.showToast('File terhapus.');
+            });
+        };
+
+        // ==========================================
+        // 3. ADMIN FORM BUILDER / EDITOR
+        // ==========================================
+        window.openFormEditor = (id) => {
+            window.currentFormId = id;
+            window.openWindow('win-builder');
+            window.switchEditorTab('build');
+        };
+
+        window.switchEditorTab = (tab) => {
+            window.activeAdminTab = tab;
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(!f) return;
+
+            document.getElementById('tab-build').classList.remove('active');
+            document.getElementById('tab-responses').classList.remove('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            document.getElementById('badge-responses').textContent = window.submissionsData.filter(s => s.formId === window.currentFormId).length;
+
+            if (tab === 'build') {
+                document.getElementById('view-responses').classList.add('hidden');
+                document.getElementById('view-builder').classList.remove('hidden');
+                window.renderBuilder();
+            } else {
+                document.getElementById('view-builder').classList.add('hidden');
+                document.getElementById('view-responses').classList.remove('hidden');
+                window.renderResponses();
+            }
+        };
+
+        window.renderBuilder = () => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(!f) return;
+
+            document.getElementById('edit-form-title').value = f.title;
+            document.getElementById('edit-form-desc').value = f.desc;
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            f.questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "win98-window p-3 bg-gray-50 flex flex-col gap-2 relative";
+                
+                let optionsUI = '';
+                if(['radio', 'checkbox'].includes(q.type)) {
+                    optionsUI = `<div class="mt-1 space-y-1.5 pl-2">`;
+                    q.options.forEach((opt, oIdx) => {
+                        const iClass = q.type === 'radio' ? 'fa-circle' : 'fa-square';
+                        optionsUI += `
+                            <div class="flex items-center gap-2">
+                                <i class="far ${iClass} text-gray-400"></i>
+                                <input type="text" onchange="window.updateOption('${q.id}', ${oIdx}, this.value)" value="${escapeHTML(opt)}" class="win98-input flex-grow text-xs">
+                                <button onclick="window.deleteOption('${q.id}', ${oIdx})" class="win98-btn py-0 px-1 text-red-600"><i class="fas fa-times"></i></button>
+                            </div>`;
+                    });
+                    optionsUI += `<button onclick="window.addOption('${q.id}')" class="win98-btn text-[10px] mt-1"><i class="fas fa-plus text-blue-800"></i> <span class="hidden sm:inline">Opsi Baru</span></button></div>`;
+                } else if (q.type === 'file') {
+                    optionsUI = `<div class="mt-1 p-2 border border-dashed border-gray-400 bg-gray-200 text-gray-600 text-center text-xs"><i class="fas fa-image mb-1"></i><br>Area Upload Gambar (Max 10MB)</div>`;
+                }
+
+                const icons = {'text':'fa-font', 'paragraph':'fa-align-left', 'radio':'fa-dot-circle', 'checkbox':'fa-check-square', 'file':'fa-image'};
+                card.innerHTML = `
+                    <div class="flex gap-2">
+                        <input type="text" onchange="window.updateQuestionTitle('${q.id}', this.value)" value="${escapeHTML(q.title)}" class="win98-input flex-grow font-bold text-xs">
+                        <div class="win98-window-inset bg-gray-200 px-2 flex items-center text-[10px] font-bold shrink-0"><i class="fas ${icons[q.type]} sm:mr-1 text-[#000080]"></i></div>
+                    </div>
+                    ${optionsUI}
+                    <div class="mt-2 pt-2 border-t border-gray-300 flex items-center justify-between">
+                        <div class="flex gap-1">
+                            <button onclick="window.moveQuestion('${q.id}', -1)" class="win98-btn py-0 px-2" ${index===0?'disabled':''}><i class="fas fa-arrow-up"></i></button>
+                            <button onclick="window.moveQuestion('${q.id}', 1)" class="win98-btn py-0 px-2" ${index===f.questions.length-1?'disabled':''}><i class="fas fa-arrow-down"></i></button>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="flex items-center gap-1 cursor-pointer text-xs"><input type="checkbox" onchange="window.toggleRequired('${q.id}')" ${q.required?'checked':''}> <span class="hidden sm:inline">Wajib</span></label>
+                            <button onclick="window.deleteQuestion('${q.id}')" class="win98-btn py-0 px-2 text-red-600"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        // Firebase Sync Mutations
+        async function syncActiveForm() {
+            if (!currentUser) return;
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(!f) return;
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', f.id), f);
+        }
+
+        window.updateFormMeta = () => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(f) { f.title = document.getElementById('edit-form-title').value; f.desc = document.getElementById('edit-form-desc').value; syncActiveForm(); }
+        }
+        window.addQuestion = (type) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(f) {
+                f.questions.push({ id: generateId(), type, title: 'Pertanyaan Baru', required: false, options: ['radio', 'checkbox'].includes(type) ? ['Opsi 1'] : [] });
+                syncActiveForm();
+            }
+        }
+        window.updateQuestionTitle = (qId, val) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const q = f?.questions.find(q => q.id === qId);
+            if(q) { q.title = val; syncActiveForm(); }
+        }
+        window.toggleRequired = (qId) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const q = f?.questions.find(q => q.id === qId);
+            if(q) { q.required = !q.required; syncActiveForm(); }
+        }
+        window.deleteQuestion = (qId) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(f) { f.questions = f.questions.filter(q => q.id !== qId); syncActiveForm(); }
+        }
+        window.addOption = (qId) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const q = f?.questions.find(q => q.id === qId);
+            if(q) { q.options.push(`Opsi ${q.options.length + 1}`); syncActiveForm(); }
+        }
+        window.updateOption = (qId, idx, val) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const q = f?.questions.find(q => q.id === qId);
+            if(q && q.options[idx] !== undefined) { q.options[idx] = val; syncActiveForm(); }
+        }
+        window.deleteOption = (qId, idx) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const q = f?.questions.find(q => q.id === qId);
+            if(q && q.options.length > 1) { q.options.splice(idx, 1); syncActiveForm(); }
+        }
+        window.moveQuestion = (qId, offset) => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const idx = f?.questions.findIndex(q => q.id === qId);
+            if (idx >= 0) {
+                const newIdx = idx + offset;
+                if (newIdx >= 0 && newIdx < f.questions.length) {
+                    const temp = f.questions[idx]; f.questions[idx] = f.questions[newIdx]; f.questions[newIdx] = temp;
+                    syncActiveForm();
+                }
+            }
+        }
+
+        // ==========================================
+        // 4. ADMIN ANALYTICS & CSV
+        // ==========================================
+        window.renderResponses = () => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if(!f) return;
+            const subs = window.submissionsData.filter(s => s.formId === window.currentFormId);
+            document.getElementById('stat-responses-count').textContent = subs.length;
+
+            Object.values(activeCharts).forEach(c => c.destroy());
+            activeCharts = {};
+            const chartContainer = document.getElementById('charts-container');
+            chartContainer.innerHTML = '';
+
+            const thead = document.getElementById('table-head');
+            const tbody = document.getElementById('table-body');
+            thead.innerHTML = ''; tbody.innerHTML = '';
+
+            if (subs.length === 0) {
+                tbody.innerHTML = `<tr><td class="px-3 py-6 text-center text-gray-500">Belum ada respon.</td></tr>`;
+                return;
+            }
+
+            let headTr = `<tr><th class="px-3 py-2 border-r border-white">Waktu</th>`;
+            f.questions.forEach(q => { headTr += `<th class="px-3 py-2 border-r border-white max-w-[120px] truncate">${escapeHTML(q.title)}</th>`; });
+            thead.innerHTML = headTr + `</tr>`;
+
+            subs.forEach(sub => {
+                let rowTr = `<tr class="hover:bg-blue-100">`;
+                rowTr += `<td class="px-3 py-2 border-r border-gray-200 whitespace-nowrap">${sub.timestamp}</td>`;
+                f.questions.forEach(q => {
+                    let ans = sub.answers[q.id] || '-';
+                    if (q.type === 'file' && ans.startsWith('data:image')) {
+                        rowTr += `<td class="px-3 py-2 border-r border-gray-200"><a href="${ans}" target="_blank" class="text-[#000080] hover:underline flex items-center"><i class="fas fa-image sm:mr-1"></i><span class="hidden sm:inline">Foto</span></a></td>`;
+                    } else {
+                        rowTr += `<td class="px-3 py-2 border-r border-gray-200 max-w-[150px] truncate" title="${escapeHTML(ans)}">${escapeHTML(ans)}</td>`;
+                    }
+                });
+                tbody.innerHTML += rowTr + `</tr>`;
+            });
+
+            // Retro Charts
+            const choiceQs = f.questions.filter(q => ['radio', 'checkbox'].includes(q.type));
+            if (choiceQs.length > 0 && subs.length > 0) {
+                choiceQs.forEach(q => {
+                    const wrap = document.createElement('div');
+                    wrap.className = "win98-window p-3 bg-[#c0c0c0] flex flex-col sm:flex-row items-center gap-4 text-xs";
+                    
+                    const counts = {};
+                    q.options.forEach(opt => counts[opt] = 0);
+                    subs.forEach(sub => {
+                        const ans = sub.answers[q.id];
+                        if (ans) {
+                            if (q.type === 'checkbox') ans.split(', ').forEach(a => { if(counts[a]!==undefined) counts[a]++; });
+                            else if(counts[ans]!==undefined) counts[ans]++;
+                        }
+                    });
+
+                    const labels = Object.keys(counts); const data = Object.values(counts);
+                    const colors = ['#000080', '#008080', '#800080', '#800000', '#008000', '#808000', '#c0c0c0', '#0000ff'];
+
+                    const info = document.createElement('div'); info.className = "w-full sm:w-1/2";
+                    let legend = `<h4 class="font-bold text-black mb-2">${escapeHTML(q.title)}</h4><ul class="space-y-1">`;
+                    const total = data.reduce((a,b)=>a+b,0);
+                    labels.forEach((lbl, i) => {
+                        const pct = total>0 ? Math.round((data[i]/total)*100) : 0;
+                        legend += `
+                            <li class="flex justify-between items-center text-[10px]">
+                                <div class="flex items-center"><span class="w-3 h-3 mr-1 border border-black" style="background-color:${colors[i%colors.length]}"></span><span class="truncate max-w-[120px]">${escapeHTML(lbl)}</span></div>
+                                <span class="font-bold">${data[i]} (${pct}%)</span>
+                            </li>`;
+                    });
+                    info.innerHTML = legend + `</ul>`;
+
+                    const canvasWrap = document.createElement('div');
+                    canvasWrap.className = "w-full sm:w-1/2 h-[120px] relative flex justify-center mt-2 sm:mt-0";
+                    const canvas = document.createElement('canvas'); canvas.id = `chart-${q.id}`;
+                    canvasWrap.appendChild(canvas);
+                    wrap.appendChild(info); wrap.appendChild(canvasWrap);
+                    chartContainer.appendChild(wrap);
+
+                    activeCharts[q.id] = new Chart(canvas, {
+                        type: 'pie',
+                        data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#000' }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    });
+                });
+            }
+        };
+
+        window.confirmClearResponses = () => {
+            if (!currentUser) return;
+            window.showModal("Kosongkan Data?", "Seluruh respon untuk formulir ini akan dihapus dari Cloud.", async () => {
+                const subs = window.submissionsData.filter(s => s.formId === window.currentFormId);
+                for (let sub of subs) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', sub.id)); }
+                window.showToast("Data respon dihapus");
+            });
+        };
+
+        window.exportToCSV = () => {
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            const subs = window.submissionsData.filter(s => s.formId === window.currentFormId);
+            if (subs.length === 0) { window.showToast("Kosong!", "error"); return; }
+
+            let csv = "Waktu,"; f.questions.forEach(q => { csv += `"${q.title.replace(/"/g, '""')}",`; }); csv += "\n";
+            subs.forEach(sub => {
+                csv += `"${sub.timestamp}",`;
+                f.questions.forEach(q => {
+                    let ans = sub.answers[q.id] || "";
+                    if(q.type === 'file' && ans.startsWith('data:image')) ans = "[Gambar Tersimpan di DB]";
+                    csv += `"${ans.replace(/"/g, '""')}",`;
+                });
+                csv += "\n";
+            });
+
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `Respon_${f.title}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            window.showToast("Unduhan CSV Berhasil");
+        };
+
+        window.copyPublicLink = () => {
+            const link = window.location.origin + window.location.pathname + "?viewForm=" + window.currentFormId;
+            const temp = document.createElement("input"); temp.value = link;
+            document.body.appendChild(temp); temp.select(); document.execCommand("copy"); document.body.removeChild(temp);
+            window.showToast("Link disalin!");
+        };
+
+
+        // ==========================================
+        // 5. PUBLIC FORM FILLER (INTERNET EXPLORER)
+        // ==========================================
+        window.openFormFiller = (id) => {
+            const f = window.formsData.find(f => f.id === id);
+            if (!f) { window.showToast("Formulir tidak ditemukan!", "error"); return; }
+
+            window.currentFormId = id;
+            document.getElementById('filler-url-bar').textContent = `http://cloud.win98/public/form?id=${id}`;
+            document.getElementById('public-title').textContent = f.title;
+            document.getElementById('public-desc').textContent = f.desc;
+            
+            document.getElementById('form-filler').classList.remove('hidden');
+            document.getElementById('public-success').classList.add('hidden');
+            
+            const container = document.getElementById('public-fields');
+            container.innerHTML = '';
+
+            f.questions.forEach((q) => {
+                const reqStar = q.required ? '<span class="text-red-600 font-bold ml-1">*</span>' : '';
+                const card = document.createElement('div');
+                card.className = "win98-window p-3 sm:p-4 bg-gray-50 flex flex-col gap-2";
+                
+                let inputHTML = `<label class="block font-bold text-gray-800 text-xs">${escapeHTML(q.title)}${reqStar}</label>`;
+
+                if (q.type === 'text') {
+                    inputHTML += `<input type="text" name="${q.id}" ${q.required ? 'required' : ''} class="win98-input w-full">`;
+                } else if (q.type === 'paragraph') {
+                    inputHTML += `<textarea name="${q.id}" ${q.required ? 'required' : ''} rows="3" class="win98-input w-full resize-none"></textarea>`;
+                } else if (q.type === 'radio') {
+                    inputHTML += `<div class="space-y-1 mt-1 pl-1">`;
+                    q.options.forEach((opt, idx) => {
+                        inputHTML += `<label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="${q.id}" value="${escapeHTML(opt)}" ${q.required && idx===0 ? 'required' : ''} class="w-3.5 h-3.5"><span class="text-xs">${escapeHTML(opt)}</span></label>`;
+                    });
+                    inputHTML += `</div>`;
+                } else if (q.type === 'checkbox') {
+                    inputHTML += `<div class="space-y-1 mt-1 pl-1" data-checkbox-group="${q.id}" data-required="${q.required}">`;
+                    q.options.forEach(opt => {
+                        inputHTML += `<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="${q.id}[]" value="${escapeHTML(opt)}" class="w-3.5 h-3.5"><span class="text-xs">${escapeHTML(opt)}</span></label>`;
+                    });
+                    inputHTML += `</div>`;
+                } else if (q.type === 'file') {
+                    inputHTML += `
+                        <div class="mt-1">
+                            <input type="file" accept="image/*" class="win98-input text-xs w-full cursor-pointer" onchange="window.handleImageUpload(event, '${q.id}')">
+                            <input type="hidden" name="${q.id}" id="hidden-${q.id}" ${q.required ? 'required' : ''}>
+                            <div id="preview-${q.id}"></div>
+                        </div>
+                    `;
+                }
+                card.innerHTML = inputHTML;
+                container.appendChild(card);
+            });
+            window.openWindow('win-filler');
+        };
+
+        // IMAGE COMPRESSION (Max 10MB)
+        window.handleImageUpload = async (e, qId) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { window.showToast("Ukuran foto > 10MB!", "error"); e.target.value = ''; return; }
+
+            const preview = document.getElementById(`preview-${qId}`);
+            preview.innerHTML = `<div class="text-xs text-[#000080] mt-1"><i class="fas fa-spinner fa-spin"></i> Mengompresi...</div>`;
+            try {
+                const b64 = await compressImage(file);
+                document.getElementById(`hidden-${qId}`).value = b64;
+                preview.innerHTML = `<img src="${b64}" class="h-32 object-cover border-2 border-gray-400 mt-2">`;
+            } catch (err) {
+                window.showToast("Gagal memproses gambar", "error"); preview.innerHTML = ''; e.target.value = '';
+            }
+        };
+
+        function compressImage(file) {
+            return new Promise((res, rej) => {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const cvs = document.createElement('canvas');
+                        let w = img.width, h = img.height, max = 1200; 
+                        if (w > h && w > max) { h *= max / w; w = max; } else if (h > max) { w *= max / h; h = max; }
+                        cvs.width = w; cvs.height = h;
+                        cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+                        let q = 0.7, data = cvs.toDataURL('image/jpeg', q);
+                        while(data.length > 700000 && q > 0.1) { q -= 0.1; data = cvs.toDataURL('image/jpeg', q); }
+                        res(data);
+                    };
+                    img.onerror = rej; img.src = e.target.result;
+                };
+                r.onerror = rej; r.readAsDataURL(file);
+            });
+        }
+
+        // Handle Submission
+        window.submitFormResponse = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            const f = window.formsData.find(f => f.id === window.currentFormId);
+            if (!f) return;
+
+            let hasError = false;
+            document.querySelectorAll('[data-checkbox-group]').forEach(grp => {
+                if (grp.getAttribute('data-required') === 'true') {
+                    if (grp.querySelectorAll('input:checked').length === 0) { grp.parentElement.classList.add('border-red-500'); hasError = true; } 
+                    else grp.parentElement.classList.remove('border-red-500');
+                }
+            });
+
+            f.questions.filter(q => q.type === 'file' && q.required).forEach(q => {
+                const hid = document.getElementById(`hidden-${q.id}`);
+                if (!hid.value) { hid.parentElement.parentElement.classList.add('border-red-500'); hasError = true; } 
+                else hid.parentElement.parentElement.classList.remove('border-red-500');
+            });
+
+            if (hasError) { window.showToast("Lengkapi input wajib!", "error"); return; }
+
+            const btn = document.getElementById('btn-submit-public');
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`; btn.disabled = true;
+
+            try {
+                const formData = new FormData(e.target);
+                const submission = { id: generateId(), formId: f.id, timestamp: new Date().toLocaleString('id-ID'), answers: {} };
+                f.questions.forEach(q => {
+                    if (q.type === 'checkbox') submission.answers[q.id] = formData.getAll(`${q.id}[]`).join(', ');
+                    else submission.answers[q.id] = formData.get(q.id) || '';
+                });
+
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', submission.id), submission);
+                
+                // --- INTEGRASI GOOGLE APP SCRIPT (GAS) ---
+                if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.startsWith("http")) {
+                    const payloadToGas = {
+                        formTitle: f.title,
+                        timestamp: submission.timestamp,
+                        answers: {}
+                    };
+                    f.questions.forEach(q => {
+                        let answerVal = submission.answers[q.id];
+                        if (q.type === 'file' && answerVal) answerVal = "[Gambar Tersimpan di Database Firebase]";
+                        payloadToGas.answers[q.title] = answerVal || "";
+                    });
+
+                    fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(payloadToGas)
+                    }).catch(err => console.error("GAS Sync Error:", err));
+                }
+                // ----------------------------------------
+
+                document.getElementById('form-filler').classList.add('hidden');
+                document.getElementById('public-success').classList.remove('hidden');
+            } catch (err) {
+                window.showToast("Gagal kirim ke Cloud.", "error"); btn.innerHTML = origHTML; btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
