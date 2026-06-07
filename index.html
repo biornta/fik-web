@@ -562,23 +562,9 @@
 
 
     <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC (Firebase & Core System)  -->
+    <!-- JAVASCRIPT LOGIC (Offline LocalStorage Core) -->
     <!-- ========================================== -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase Initialization
-        let firebaseConfig = {};
-        try { firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {}; } 
-        catch(e) { console.error("Firebase config error", e); }
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
+    <script>
         // --- State Management ---
         window.formsData = [];
         window.submissionsData = [];
@@ -586,7 +572,11 @@
         window.activeAdminTab = 'build';
         window.isAdmin = false;
         let activeCharts = {};
-        let currentUser = null;
+        let currentUser = { uid: "admin" }; // Mock admin user owner
+
+        // --- Local Database Keys ---
+        const DB_KEY_FORMS = 'fik_gforms_offline_forms';
+        const DB_KEY_SUBS = 'fik_gforms_offline_subs';
 
         // --- Window Dragging Logic (Retro + Touch Support) ---
         let dragObj = null, diffX = 0, diffY = 0;
@@ -703,62 +693,76 @@
 
         window.closeModal = () => document.getElementById('custom-modal').classList.add('hidden');
 
-
-        // --- Authentication & Firestore Setup ---
-        let initialLoadDone = false;
-
-        const hideLoaderSafe = () => {
-            if (!initialLoadDone) {
-                initialLoadDone = true;
-                const urlParams = new URLSearchParams(window.location.search);
-                const viewFormId = urlParams.get('viewForm');
-                if (viewFormId) window.openFormFiller(viewFormId);
-                else window.openWindow('win-explorer'); // Default View
-            }
-        };
-
-        const initSystem = async () => {
+        // --- Local Database Engine (Load/Save) ---
+        function loadData() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+                const forms = localStorage.getItem(DB_KEY_FORMS);
+                const subs = localStorage.getItem(DB_KEY_SUBS);
+                
+                window.formsData = forms ? JSON.parse(forms) : [];
+                window.submissionsData = subs ? JSON.parse(subs) : [];
+                
+                // Jika database kosong, buatkan beberapa contoh dokumen otomatis
+                if (window.formsData.length === 0) {
+                    window.formsData = [
+                        {
+                            id: "form-default-1",
+                            ownerId: "admin",
+                            title: "Survei Kepuasan Pengguna",
+                            desc: "Berikan masukan berharga Anda untuk evaluasi layanan administrasi sistem kami.",
+                            questions: [
+                                { id: "q-name", type: "text", title: "Nama Lengkap Responden", required: true, options: [] },
+                                { id: "q-rating", type: "radio", title: "Kualitas Layanan Aplikasi", required: true, options: ["Sangat Memuaskan", "Cukup Baik", "Perlu Peningkatan"] },
+                                { id: "q-features", type: "checkbox", title: "Fitur yang Sering Digunakan", required: false, options: ["Pembuatan Formulir", "Ekspor Berkas CSV", "Statistik Diagram Lingkaran"] },
+                                { id: "q-image", type: "file", title: "Lampirkan Pas Foto / Berkas (Max 10MB)", required: false, options: [] }
+                            ]
+                        }
+                    ];
+                    window.submissionsData = [
+                        {
+                            id: "sub-default-1",
+                            formId: "form-default-1",
+                            timestamp: "07/06/2026 12:45:00",
+                            answers: {
+                                "q-name": "Ahmad Dani",
+                                "q-rating": "Sangat Memuaskan",
+                                "q-features": "Pembuatan Formulir, Ekspor Berkas CSV",
+                                "q-image": ""
+                            }
+                        }
+                    ];
+                    saveData();
                 }
-            } catch (error) {
-                console.error("Auth error:", error);
-                window.showToast("Gagal terhubung ke Cloud", "error");
-                hideLoaderSafe(); // Failsafe if auth throws error
+            } catch(e) {
+                console.error("Gagal memproses muatan database lokal", e);
+                window.formsData = [];
+                window.submissionsData = [];
             }
-            
-            // Failsafe timeout to prevent infinite loader
-            setTimeout(() => {
-                hideLoaderSafe();
-            }, 6000);
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user) setupFirestoreListeners(user);
-        });
-
-        function setupFirestoreListeners(user) {
-            if (!user) return;
-            const formsRef = collection(db, 'artifacts', appId, 'public', 'data', 'forms');
-            onSnapshot(formsRef, (snapshot) => {
-                window.formsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                hideLoaderSafe();
-                window.refreshUI();
-            }, (error) => {
-                console.error("Firestore error (forms):", error);
-                hideLoaderSafe(); // Failsafe if permission denied or error
-            });
-
-            const subsRef = collection(db, 'artifacts', appId, 'public', 'data', 'submissions');
-            onSnapshot(subsRef, (snapshot) => {
-                window.submissionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                window.refreshUI();
-            }, (error) => console.error("Firestore error (subs):", error));
         }
+
+        function saveData() {
+            try {
+                localStorage.setItem(DB_KEY_FORMS, JSON.stringify(window.formsData));
+                localStorage.setItem(DB_KEY_SUBS, JSON.stringify(window.submissionsData));
+            } catch(e) {
+                console.error("Gagal memperbarui database lokal", e);
+                window.showToast("Gagal menyimpan data ke browser (Storage Penuh/Terbatas)", "error");
+            }
+        }
+
+        // --- Bootstrap & Initial Routing ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewFormId = urlParams.get('viewForm');
+            if (viewFormId) {
+                window.openFormFiller(viewFormId);
+            } else {
+                window.openWindow('win-explorer'); // Default membuka Explorer
+            }
+            window.refreshUI();
+        });
 
         window.refreshUI = () => {
             window.renderExplorer();
@@ -768,10 +772,6 @@
                 if (window.activeAdminTab === 'responses') window.renderResponses();
             }
         };
-
-        // Langsung tampilkan UI Windows Explorer tanpa loader HTML, Firebase berjalan diam-diam di background.
-        hideLoaderSafe();
-        initSystem(); // Boot OS
 
         // --- Admin Login Processing ---
         window.submitAdminLogin = () => {
@@ -847,25 +847,27 @@
         };
 
         window.createNewForm = async () => {
-            if (!currentUser) return;
             const newForm = {
                 id: generateId(),
-                ownerId: currentUser.uid,
+                ownerId: "admin",
                 title: "Formulir Baru",
                 desc: "Ketik deskripsi form disini...",
                 questions: [ { id: generateId(), type: 'text', title: 'Pertanyaan 1', required: false, options: [] } ]
             };
-            const formRef = doc(db, 'artifacts', appId, 'public', 'data', 'forms', newForm.id);
-            await setDoc(formRef, newForm);
+            window.formsData.unshift(newForm);
+            saveData();
             window.showToast("Formulir sukses dibuat!");
             window.openFormEditor(newForm.id);
+            window.refreshUI();
         };
 
         window.confirmDeleteForm = (id) => {
-            if (!currentUser) return;
-            window.showModal('Hapus Permanen?', 'Formulir ini beserta semua data respon akan dihapus dari Cloud.', async () => {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', id));
+            window.showModal('Hapus Permanen?', 'Formulir ini beserta semua data respon akan dihapus.', () => {
+                window.formsData = window.formsData.filter(f => f.id !== id);
+                window.submissionsData = window.submissionsData.filter(s => s.formId !== id);
+                saveData();
                 window.showToast('File terhapus.');
+                window.refreshUI();
             });
         };
 
@@ -952,12 +954,10 @@
             });
         };
 
-        // Firebase Sync Mutations
-        async function syncActiveForm() {
-            if (!currentUser) return;
-            const f = window.formsData.find(f => f.id === window.currentFormId);
-            if(!f) return;
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', f.id), f);
+        // Local Sync Mutations
+        function syncActiveForm() {
+            saveData();
+            window.refreshUI();
         }
 
         window.updateFormMeta = () => {
@@ -1103,10 +1103,10 @@
         };
 
         window.confirmClearResponses = () => {
-            if (!currentUser) return;
-            window.showModal("Kosongkan Data?", "Seluruh respon untuk formulir ini akan dihapus dari Cloud.", async () => {
-                const subs = window.submissionsData.filter(s => s.formId === window.currentFormId);
-                for (let sub of subs) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', sub.id)); }
+            window.showModal("Kosongkan Data?", "Seluruh respon untuk formulir ini akan dihapus dari Cloud.", () => {
+                window.submissionsData = window.submissionsData.filter(s => s.formId !== window.currentFormId);
+                saveData();
+                window.refreshUI();
                 window.showToast("Data respon dihapus");
             });
         };
@@ -1239,7 +1239,6 @@
         // Handle Submission
         window.submitFormResponse = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
             const f = window.formsData.find(f => f.id === window.currentFormId);
             if (!f) return;
 
@@ -1271,12 +1270,14 @@
                     else submission.answers[q.id] = formData.get(q.id) || '';
                 });
 
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'submissions', submission.id), submission);
+                window.submissionsData.push(submission);
+                saveData();
 
                 document.getElementById('form-filler').classList.add('hidden');
                 document.getElementById('public-success').classList.remove('hidden');
+                window.refreshUI();
             } catch (err) {
-                window.showToast("Gagal kirim ke Cloud.", "error"); btn.innerHTML = origHTML; btn.disabled = false;
+                window.showToast("Gagal kirim data.", "error"); btn.innerHTML = origHTML; btn.disabled = false;
             }
         };
     </script>
