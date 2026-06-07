@@ -210,18 +210,6 @@
 </head>
 <body class="min-h-screen relative p-2 md:p-4 pb-16">
 
-    <!-- Fullscreen Loader (Win98 Style) -->
-    <div id="app-loader" class="fixed inset-0 bg-[#008080] z-[100] flex items-center justify-center p-4">
-        <div class="win98-window p-6 flex flex-col items-center gap-4 max-w-sm w-full shadow-2xl">
-            <div class="win98-titlebar w-full mb-2">
-                <span><i class="fas fa-network-wired text-yellow-300"></i> Windows Networking</span>
-            </div>
-            <i class="fas fa-hourglass-half text-4xl text-[#000080] fa-spin"></i>
-            <p class="font-bold text-sm text-center">Menghubungkan ke Cloud Database...</p>
-            <p class="text-xs text-gray-600 text-center">Memuat konfigurasi Firestore, harap tunggu.</p>
-        </div>
-    </div>
-
     <!-- Desktop Shortcuts -->
     <div class="absolute top-4 left-4 flex flex-col gap-6 z-0">
         <div class="flex flex-col items-center gap-1 cursor-pointer w-16" onclick="window.openWindow('win-explorer')">
@@ -722,9 +710,6 @@
         const hideLoaderSafe = () => {
             if (!initialLoadDone) {
                 initialLoadDone = true;
-                const loader = document.getElementById('app-loader');
-                if (loader) loader.classList.add('hidden');
-                
                 const urlParams = new URLSearchParams(window.location.search);
                 const viewFormId = urlParams.get('viewForm');
                 if (viewFormId) window.openFormFiller(viewFormId);
@@ -784,6 +769,8 @@
             }
         };
 
+        // Langsung tampilkan UI Windows Explorer tanpa loader HTML, Firebase berjalan diam-diam di background.
+        hideLoaderSafe();
         initSystem(); // Boot OS
 
         // --- Admin Login Processing ---
